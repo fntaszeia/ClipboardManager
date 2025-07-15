@@ -212,8 +212,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        // Add separator and quit option
+        // Add separator and options
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "u"))
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         
         statusItem.menu = menu
@@ -250,8 +251,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         
-        // Add separator and quit option
+        // Add separator and options
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "u"))
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         
         statusItem.menu = menu
@@ -315,8 +317,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 newMenu.addItem(menuItem)
             }
             
-            // Add separator and quit
+            // Add separator and options
             newMenu.addItem(NSMenuItem.separator())
+            newMenu.addItem(NSMenuItem(title: "Check for Updates", action: #selector(self.checkForUpdates), keyEquivalent: "u"))
             newMenu.addItem(NSMenuItem(title: "Quit", action: #selector(self.quit), keyEquivalent: "q"))
             
             // Set the new menu
@@ -465,6 +468,230 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             menuItem.title = "✨ " + originalTitle
+        }
+    }
+    
+    @objc private func checkForUpdates() {
+        print("🔄 Checking for updates...")
+        
+        // Show loading indicator
+        let loadingItem = NSMenuItem(title: "⏳ Checking for updates...", action: nil, keyEquivalent: "")
+        loadingItem.isEnabled = false
+        
+        // Update menu to show loading
+        if let menu = statusItem.menu {
+            // Find the update menu item and replace it temporarily
+            for (index, item) in menu.items.enumerated() {
+                if item.title == "Check for Updates" {
+                    menu.removeItem(item)
+                    menu.insertItem(loadingItem, at: index)
+                    break
+                }
+            }
+        }
+        
+        // Perform update check in background
+        DispatchQueue.global(qos: .background).async {
+            self.performUpdateCheck()
+        }
+    }
+    
+    private func performUpdateCheck() {
+        let currentDir = FileManager.default.currentDirectoryPath
+        let gitDir = "\(currentDir)/.git"
+        
+        // Check if we're in a git repository
+        guard FileManager.default.fileExists(atPath: gitDir) else {
+            DispatchQueue.main.async {
+                self.showUpdateResult(success: false, message: "Not a git repository. Please clone from GitHub to enable updates.")
+            }
+            return
+        }
+        
+        // Run git fetch to get latest changes
+        let fetchTask = Process()
+        fetchTask.launchPath = "/usr/bin/git"
+        fetchTask.arguments = ["fetch", "origin", "main"]
+        fetchTask.currentDirectoryPath = currentDir
+        
+        let fetchPipe = Pipe()
+        fetchTask.standardOutput = fetchPipe
+        fetchTask.standardError = fetchPipe
+        
+        fetchTask.launch()
+        fetchTask.waitUntilExit()
+        
+        if fetchTask.terminationStatus != 0 {
+            DispatchQueue.main.async {
+                self.showUpdateResult(success: false, message: "Failed to check for updates. Please check your internet connection.")
+            }
+            return
+        }
+        
+        // Check if updates are available
+        let statusTask = Process()
+        statusTask.launchPath = "/usr/bin/git"
+        statusTask.arguments = ["status", "-uno"]
+        statusTask.currentDirectoryPath = currentDir
+        
+        let statusPipe = Pipe()
+        statusTask.standardOutput = statusPipe
+        statusTask.standardError = statusPipe
+        
+        statusTask.launch()
+        statusTask.waitUntilExit()
+        
+        let statusData = statusPipe.fileHandleForReading.readDataToEndOfFile()
+        let statusOutput = String(data: statusData, encoding: .utf8) ?? ""
+        
+        if statusOutput.contains("Your branch is behind") {
+            DispatchQueue.main.async {
+                self.showUpdateAvailable()
+            }
+        } else if statusOutput.contains("Your branch is up to date") {
+            DispatchQueue.main.async {
+                self.showUpdateResult(success: true, message: "✅ You're running the latest version!")
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.showUpdateResult(success: true, message: "✅ No updates available")
+            }
+        }
+    }
+    
+    private func showUpdateAvailable() {
+        let alert = NSAlert()
+        alert.messageText = "🎉 Update Available!"
+        alert.informativeText = "A new version of ClipboardManager is available. Would you like to update now?"
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Update Now")
+        alert.addButton(withTitle: "Later")
+        
+        let response = alert.runModal()
+        
+        if response == .alertFirstButtonReturn {
+            performUpdate()
+        } else {
+            restoreUpdateButton()
+        }
+    }
+    
+    private func performUpdate() {
+        print("🔄 Performing update...")
+        
+        // Show updating indicator
+        let updatingItem = NSMenuItem(title: "⬇️ Updating...", action: nil, keyEquivalent: "")
+        updatingItem.isEnabled = false
+        
+        if let menu = statusItem.menu {
+            for (index, item) in menu.items.enumerated() {
+                if item.title.contains("Checking for updates") {
+                    menu.removeItem(item)
+                    menu.insertItem(updatingItem, at: index)
+                    break
+                }
+            }
+        }
+        
+        DispatchQueue.global(qos: .background).async {
+            let currentDir = FileManager.default.currentDirectoryPath
+            
+            // Pull latest changes
+            let pullTask = Process()
+            pullTask.launchPath = "/usr/bin/git"
+            pullTask.arguments = ["pull", "origin", "main"]
+            pullTask.currentDirectoryPath = currentDir
+            
+            let pullPipe = Pipe()
+            pullTask.standardOutput = pullPipe
+            pullTask.standardError = pullPipe
+            
+            pullTask.launch()
+            pullTask.waitUntilExit()
+            
+            if pullTask.terminationStatus != 0 {
+                DispatchQueue.main.async {
+                    self.showUpdateResult(success: false, message: "Failed to download updates. Please try again.")
+                }
+                return
+            }
+            
+            // Recompile the application
+            let compileTask = Process()
+            compileTask.launchPath = "/bin/bash"
+            compileTask.arguments = ["compile.sh"]
+            compileTask.currentDirectoryPath = currentDir
+            
+            let compilePipe = Pipe()
+            compileTask.standardOutput = compilePipe
+            compileTask.standardError = compilePipe
+            
+            compileTask.launch()
+            compileTask.waitUntilExit()
+            
+            if compileTask.terminationStatus != 0 {
+                DispatchQueue.main.async {
+                    self.showUpdateResult(success: false, message: "Failed to compile updates. Please run './compile.sh' manually.")
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.showUpdateComplete()
+            }
+        }
+    }
+    
+    private func showUpdateComplete() {
+        let alert = NSAlert()
+        alert.messageText = "✅ Update Complete!"
+        alert.informativeText = "ClipboardManager has been updated successfully. The app will restart to apply changes."
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "Restart Now")
+        alert.addButton(withTitle: "Restart Later")
+        
+        let response = alert.runModal()
+        
+        if response == .alertFirstButtonReturn {
+            restartApplication()
+        } else {
+            restoreUpdateButton()
+        }
+    }
+    
+    private func restartApplication() {
+        let currentDir = FileManager.default.currentDirectoryPath
+        let executablePath = "\(currentDir)/ClipboardManager"
+        
+        // Launch new instance
+        let task = Process()
+        task.launchPath = executablePath
+        task.launch()
+        
+        // Quit current instance
+        NSApp.terminate(nil)
+    }
+    
+    private func showUpdateResult(success: Bool, message: String) {
+        let alert = NSAlert()
+        alert.messageText = success ? "Update Check" : "Update Error"
+        alert.informativeText = message
+        alert.alertStyle = success ? .informational : .warning
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+        
+        restoreUpdateButton()
+    }
+    
+    private func restoreUpdateButton() {
+        if let menu = statusItem.menu {
+            for (index, item) in menu.items.enumerated() {
+                if item.title.contains("Checking for updates") || item.title.contains("Updating") {
+                    menu.removeItem(item)
+                    menu.insertItem(NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "u"), at: index)
+                    break
+                }
+            }
         }
     }
     

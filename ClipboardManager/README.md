@@ -77,6 +77,7 @@ The installer will ask if you want to enable auto-startup. Choose "Yes" to autom
 - **Click menu bar icon** → Open clipboard history
 - **Double-click item** → Copy to clipboard
 - **Option+Click link** → Open in browser
+- **Cmd+U** → Check for updates
 - **Cmd+Q** → Quit application
 
 ## 🎬 How It Works
@@ -142,18 +143,23 @@ swiftc -o ClipboardManager main.swift -framework Cocoa -framework Foundation
 
 ## 🔄 Updating
 
-### Auto-Update
+### In-App Updates (Recommended)
+1. **Click menu bar icon** → **Check for Updates**
+2. **Choose "Update Now"** if updates are available
+3. **App automatically downloads, compiles, and restarts**
+
+### Manual Update
 ```bash
 cd ClipboardManager
 git pull origin main
-./install.sh
+./compile.sh
 ```
 
-### Manual Update
-1. Download latest version from GitHub
-2. Replace existing files
-3. Run `./compile.sh`
-4. Restart the application
+### Features:
+- **One-click updates** directly from menu bar
+- **Automatic compilation** after download
+- **Seamless restart** to apply changes
+- **Rollback protection** with error handling
 
 ## 🗑️ Uninstallation
 
