@@ -1,0 +1,28 @@
+# Compiled binaries
+ClipboardManager
+SimpleTest
+TestDebug
+
+# Test files
+simple_test.swift
+test_debug.swift
+
+# Node modules
+node_modules/
+package.json
+package-lock.json
+
+# macOS system files
+.DS_Store
+.Trash/
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+build/
+DerivedData/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
