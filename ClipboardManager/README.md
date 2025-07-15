@@ -1,43 +1,157 @@
 # 📋 ClipboardManager for macOS
 
-A powerful, feature-rich clipboard manager for macOS that provides seamless clipboard history management with real-time updates and beautiful animations.
+<div align="center">
 
-## ✨ Features
+![ClipboardManager Demo](https://img.shields.io/badge/macOS-10.15+-blue?style=for-the-badge&logo=apple)
+![Swift](https://img.shields.io/badge/Swift-5.0+-orange?style=for-the-badge&logo=swift)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-- **🔄 Real-time Clipboard History**: Stores up to 10 clipboard items with instant updates
-- **🖼️ Image & Screenshot Support**: Full support for images with thumbnail previews
-- **🔗 Smart Link Detection**: Automatically detects URLs with click-to-copy and Option+click-to-open
-- **🎨 Menu Bar Integration**: Clean, native macOS menu bar interface
-- **⚡ Live Animations**: Beautiful animated feedback when copying new items
-- **🔊 Audio Feedback**: Sound notifications for new clipboard items
-- **⌨️ Keyboard Shortcuts**: Quick access and easy interaction
-- **🎯 Seamless Updates**: New items appear instantly while menu is open
+**A powerful, feature-rich clipboard manager for macOS that provides seamless clipboard history management with real-time updates and beautiful animations.**
 
-## 🚀 Quick Installation
+[🚀 Quick Install](#-quick-installation) • [📖 Features](#-features) • [🎬 Demo](#-how-it-works) • [📋 Usage](#-usage-guide) • [🔧 Development](#-development)
 
-### Option 1: One-Command Install
+</div>
+
+---
+
+## 🎯 **Quick Start - Install in 30 seconds**
+
+### **Option 1: One-Command Install (Recommended)**
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fntaszeia/ClipboardManager/main/install.sh | bash
 ```
 
-### Option 2: Manual Installation
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/fntaszeia/ClipboardManager.git
-   cd ClipboardManager
-   ```
+### **Option 2: Manual Install**
+```bash
+git clone https://github.com/fntaszeia/ClipboardManager.git
+cd ClipboardManager
+chmod +x install.sh
+./install.sh
+```
 
-2. **Run the installer:**
-   ```bash
-   chmod +x install.sh
-   ./install.sh
-   ```
+**That's it!** Look for the 📋 icon in your menu bar and start managing your clipboard like a pro!
 
-3. **Or compile manually:**
-   ```bash
-   ./compile.sh
-   ./ClipboardManager
-   ```
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔄 **Real-time Clipboard History**
+- Stores up to 10 clipboard items
+- Instant updates while menu is open
+- Automatic cleanup of old items
+
+### 🖼️ **Image & Screenshot Support**
+- Full support for images with thumbnails
+- Perfect for screenshots and copied images
+- Visual previews in menu
+
+### 🔗 **Smart Link Detection**
+- Automatically detects URLs
+- Click to copy, Option+click to open
+- Supports http, https, and ftp links
+
+</td>
+<td width="50%">
+
+### 🎨 **Native macOS Integration**
+- Clean menu bar interface
+- Follows macOS design principles
+- Background app with minimal footprint
+
+### ⚡ **Live Animations & Feedback**
+- Beautiful animated feedback
+- Sound notifications for new items
+- Sparkle effects for new clipboard items
+
+### 🔄 **In-App Updates**
+- One-click updates from menu bar
+- Automatic download and installation
+- No manual updating required
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🎬 **See It In Action**
+
+### **Quick Demo:**
+1. **Install** → Run the one-command installer
+2. **Look** → Find 📋 in your menu bar
+3. **Copy** → Copy any text, image, or link
+4. **Click** → Open clipboard history from menu bar
+5. **Use** → Click any item to copy it back
+6. **Update** → Click "Check for Updates" to get new features
+
+### **Menu Preview:**
+```
+📋 ClipboardManager
+├── 📝 Your latest copied text appears here...
+├── 🔗 https://github.com/fntaszeia/ClipboardManager
+├── 📸 Screenshot from 2:30 PM
+├── 📝 Another text item you copied
+├── ─────────────────────────────────────────
+├── 🔄 Check for Updates
+└── ❌ Quit
+```
+
+## 📋 **System Requirements**
+
+<div align="center">
+
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| **macOS** | 10.15 (Catalina) | 11.0+ (Big Sur) |
+| **Architecture** | Intel or Apple Silicon | Apple Silicon |
+| **RAM** | 8GB | 16GB+ |
+| **Storage** | 10MB | 50MB |
+| **Internet** | Required for updates | Broadband |
+
+</div>
+
+---
+
+## 🚀 **Installation Guide**
+
+### **🎯 Option 1: One-Command Install (Recommended)**
+```bash
+curl -fsSL https://raw.githubusercontent.com/fntaszeia/ClipboardManager/main/install.sh | bash
+```
+**✅ Includes:** Auto-compilation, app bundle setup, auto-startup configuration
+
+### **🛠️ Option 2: Manual Installation**
+```bash
+# 1. Clone the repository
+git clone https://github.com/fntaszeia/ClipboardManager.git
+cd ClipboardManager
+
+# 2. Make installer executable and run
+chmod +x install.sh
+./install.sh
+
+# 3. Follow the prompts for auto-startup setup
+```
+
+### **⚡ Option 3: Quick Development Setup**
+```bash
+# For developers who want to modify the code
+git clone https://github.com/fntaszeia/ClipboardManager.git
+cd ClipboardManager
+./compile.sh
+./ClipboardManager
+```
+
+### **🔧 What the Installer Does:**
+1. **✅ Checks macOS compatibility** (10.15+ required)
+2. **✅ Verifies Xcode Command Line Tools** (installs if missing)
+3. **✅ Compiles the application** with Swift compiler
+4. **✅ Creates app bundle** for proper macOS integration
+5. **✅ Sets up auto-startup** (optional - you choose)
+6. **✅ Creates desktop shortcut** and menu bar integration
+7. **✅ Starts the application** immediately
 
 ## 🔧 Auto-Startup Setup
 
@@ -210,16 +324,82 @@ git pull origin main
 4. **Push** to branch: `git push origin feature-name`
 5. **Submit** a Pull Request
 
-## 📄 License
+---
 
-MIT License - Feel free to modify and distribute as needed.
+## 🌟 **Support This Project**
 
-## 👨‍💻 Author
+<div align="center">
 
-Created by **fntaszeia** with assistance from Claude AI.
+### **Found this useful? Give it a star! ⭐**
+
+[![GitHub stars](https://img.shields.io/github/stars/fntaszeia/ClipboardManager?style=social)](https://github.com/fntaszeia/ClipboardManager/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/fntaszeia/ClipboardManager?style=social)](https://github.com/fntaszeia/ClipboardManager/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/fntaszeia/ClipboardManager)](https://github.com/fntaszeia/ClipboardManager/issues)
+
+**Your star helps others discover this project!**
+
+</div>
 
 ---
 
-⭐ **Star this repository** if you find it useful!
+## 📞 **Support & Community**
 
-🐛 **Report issues** at: https://github.com/fntaszeia/ClipboardManager/issues
+<div align="center">
+
+| 🐛 **Found a Bug?** | 💡 **Have an Idea?** | 🤝 **Want to Contribute?** |
+|---------------------|----------------------|---------------------------|
+| [Report Issue](https://github.com/fntaszeia/ClipboardManager/issues/new) | [Request Feature](https://github.com/fntaszeia/ClipboardManager/issues/new) | [Submit PR](https://github.com/fntaszeia/ClipboardManager/pulls) |
+
+</div>
+
+---
+
+## 📄 **License**
+
+```
+MIT License
+
+Copyright (c) 2024 fntaszeia
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+## 👨‍💻 **Author**
+
+<div align="center">
+
+**Created by [fntaszeia](https://github.com/fntaszeia) with assistance from Claude AI**
+
+[![GitHub followers](https://img.shields.io/github/followers/fntaszeia?style=social)](https://github.com/fntaszeia)
+
+*Built with ❤️ for the macOS community*
+
+</div>
+
+---
+
+<div align="center">
+
+### **⭐ Star • 🍴 Fork • 📢 Share**
+
+**Made with Swift and love for macOS users everywhere! 🍎**
+
+</div>
