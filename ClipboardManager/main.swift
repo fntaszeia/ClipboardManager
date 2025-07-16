@@ -6,6 +6,7 @@ class ClipboardManager {
     private let maxHistory = 10
     private let pasteboard = NSPasteboard.general
     private var lastChangeCount = 0
+    private let appVersion = "1.0.0"
     
     struct ClipboardItem {
         let id = UUID()
@@ -34,6 +35,7 @@ class ClipboardManager {
             self.checkClipboard()
         }
     }
+    
     
     func checkClipboard() {
         let currentChangeCount = pasteboard.changeCount
@@ -119,6 +121,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var clipboardItems: [ClipboardManager.ClipboardItem] = []
     private var isMenuOpen = false
     private var menuUpdateTimer: Timer?
+    private let appVersion = "1.0.0"
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         print("Application launching...")
@@ -214,6 +217,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Add separator and options
         menu.addItem(NSMenuItem.separator())
+        
+        // Add version information
+        let version = self.getCurrentVersion()
+        let gitVersion = self.getGitVersion()
+        let versionTitle = gitVersion != nil ? "Version \(version) (\(gitVersion!))" : "Version \(version)"
+        let versionItem = NSMenuItem(title: versionTitle, action: nil, keyEquivalent: "")
+        versionItem.isEnabled = false
+        menu.addItem(versionItem)
+        
         menu.addItem(NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "u"))
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         
@@ -253,6 +265,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Add separator and options
         menu.addItem(NSMenuItem.separator())
+        
+        // Add version information
+        let version = self.getCurrentVersion()
+        let gitVersion = self.getGitVersion()
+        let versionTitle = gitVersion != nil ? "Version \(version) (\(gitVersion!))" : "Version \(version)"
+        let versionItem = NSMenuItem(title: versionTitle, action: nil, keyEquivalent: "")
+        versionItem.isEnabled = false
+        menu.addItem(versionItem)
+        
         menu.addItem(NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "u"))
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         
@@ -319,6 +340,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             // Add separator and options
             newMenu.addItem(NSMenuItem.separator())
+            
+            // Add version information
+            let version = self.getCurrentVersion()
+            let gitVersion = self.getGitVersion()
+            let versionTitle = gitVersion != nil ? "Version \(version) (\(gitVersion!))" : "Version \(version)"
+            let versionItem = NSMenuItem(title: versionTitle, action: nil, keyEquivalent: "")
+            versionItem.isEnabled = false
+            newMenu.addItem(versionItem)
+            
             newMenu.addItem(NSMenuItem(title: "Check for Updates", action: #selector(self.checkForUpdates), keyEquivalent: "u"))
             newMenu.addItem(NSMenuItem(title: "Quit", action: #selector(self.quit), keyEquivalent: "q"))
             
@@ -503,7 +533,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Check if we're in a git repository
         guard FileManager.default.fileExists(atPath: gitDir) else {
             DispatchQueue.main.async {
-                self.showUpdateResult(success: false, message: "Not a git repository. Please clone from GitHub to enable updates.")
+                let currentVersion = self.getCurrentVersion()
+                let message = "Current version: \(currentVersion)\n\nNot a git repository. Please clone from GitHub to enable updates.\n\nTo enable updates:\n1. Clone from: https://github.com/yourusername/ClipboardManager\n2. Or download the latest release"
+                self.showUpdateResult(success: false, message: message)
             }
             return
         }
@@ -545,24 +577,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let statusOutput = String(data: statusData, encoding: .utf8) ?? ""
         
         if statusOutput.contains("Your branch is behind") {
+            // Get current and remote versions for comparison
+            let currentVersion = self.getCurrentVersion()
+            let remoteVersion = self.getRemoteVersion()
+            
             DispatchQueue.main.async {
-                self.showUpdateAvailable()
+                let message = "Update available!\n\nCurrent version: \(currentVersion)\nLatest version: \(remoteVersion ?? "Unknown")\n\nWould you like to update now?"
+                self.showUpdateAvailable(message: message)
             }
         } else if statusOutput.contains("Your branch is up to date") {
             DispatchQueue.main.async {
-                self.showUpdateResult(success: true, message: "✅ You're running the latest version!")
+                let currentVersion = self.getCurrentVersion()
+                let gitVersion = self.getGitVersion()
+                let versionInfo = gitVersion != nil ? "\(currentVersion) (\(gitVersion!))" : currentVersion
+                self.showUpdateResult(success: true, message: "✅ You're running the latest version!\n\nCurrent version: \(versionInfo)")
             }
         } else {
             DispatchQueue.main.async {
-                self.showUpdateResult(success: true, message: "✅ No updates available")
+                let currentVersion = self.getCurrentVersion()
+                let gitVersion = self.getGitVersion()
+                let versionInfo = gitVersion != nil ? "\(currentVersion) (\(gitVersion!))" : currentVersion
+                self.showUpdateResult(success: true, message: "✅ No updates available\n\nCurrent version: \(versionInfo)")
             }
         }
     }
     
-    private func showUpdateAvailable() {
+    private func showUpdateAvailable(message: String = "A new version of ClipboardManager is available. Would you like to update now?") {
         let alert = NSAlert()
         alert.messageText = "🎉 Update Available!"
-        alert.informativeText = "A new version of ClipboardManager is available. Would you like to update now?"
+        alert.informativeText = message
         alert.alertStyle = .informational
         alert.addButton(withTitle: "Update Now")
         alert.addButton(withTitle: "Later")
@@ -697,6 +740,72 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc private func quit() {
         NSApp.terminate(nil)
+    }
+    
+    private func getCurrentVersion() -> String {
+        let currentDir = FileManager.default.currentDirectoryPath
+        let versionPath = "\(currentDir)/version.txt"
+        
+        if let version = try? String(contentsOfFile: versionPath, encoding: .utf8) {
+            return version.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return appVersion
+    }
+    
+    private func getGitVersion() -> String? {
+        let currentDir = FileManager.default.currentDirectoryPath
+        let gitDir = "\(currentDir)/.git"
+        
+        guard FileManager.default.fileExists(atPath: gitDir) else {
+            return nil
+        }
+        
+        let task = Process()
+        task.launchPath = "/usr/bin/git"
+        task.arguments = ["describe", "--tags", "--always", "--dirty"]
+        task.currentDirectoryPath = currentDir
+        
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.standardError = pipe
+        
+        task.launch()
+        task.waitUntilExit()
+        
+        if task.terminationStatus == 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            if let version = String(data: data, encoding: .utf8) {
+                return version.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+        
+        return nil
+    }
+    
+    private func getRemoteVersion() -> String? {
+        let currentDir = FileManager.default.currentDirectoryPath
+        
+        // Try to get version from remote repository
+        let task = Process()
+        task.launchPath = "/usr/bin/git"
+        task.arguments = ["show", "origin/main:version.txt"]
+        task.currentDirectoryPath = currentDir
+        
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.standardError = pipe
+        
+        task.launch()
+        task.waitUntilExit()
+        
+        if task.terminationStatus == 0 {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            if let version = String(data: data, encoding: .utf8) {
+                return version.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+        }
+        
+        return nil
     }
 }
 
